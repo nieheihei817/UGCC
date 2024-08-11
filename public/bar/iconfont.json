@@ -1,0 +1,51 @@
+{
+  "id": "4406734",
+  "name": "侧边栏2",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "39492409",
+      "name": "bars",
+      "font_class": "bars",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "38866526",
+      "name": "个人中心",
+      "font_class": "gerenzhongxin",
+      "unicode": "10191",
+      "unicode_decimal": 65937
+    },
+    {
+      "icon_id": "38866543",
+      "name": "抵扣券",
+      "font_class": "dikouquan",
+      "unicode": "10192",
+      "unicode_decimal": 65938
+    },
+    {
+      "icon_id": "38866553",
+      "name": "商品",
+      "font_class": "shangpin",
+      "unicode": "10193",
+      "unicode_decimal": 65939
+    },
+    {
+      "icon_id": "38906628",
+      "name": "document",
+      "font_class": "document",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "38906634",
+      "name": "arrowUpOutCircle",
+      "font_class": "arrowUpOutCircle",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    }
+  ]
+}
