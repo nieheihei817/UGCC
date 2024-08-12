@@ -173,7 +173,8 @@ const submitContent = async () => {
     );
 
     console.log(response2.data);
-    alert(response2.data.msg);
+    alert("文章创建成功！");
+    location.reload()
 
   } catch (error) {
     // 处理错误
@@ -227,7 +228,7 @@ const articleHandler = (htmlText) => {
     alert("标题不能为空！")
     return
   }
-  if(title.includes("&lt") || title.includes("&gt")){
+  if(title.includes("&lt")|| title.includes("&gt")|| title.includes("&")){
     alert("非法标题,请修改")
     return
   }

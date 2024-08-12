@@ -14,7 +14,16 @@
       <button @click="testme">test</button>
       <div style="height: 50vh"></div>
     </div>
-
+    <div id="deleteWarning" v-show="warningFlag">
+      <div id="warningBg">
+        <div id="warningBox">
+          <h1>警告</h1>
+          <div id="warningContent">确定删除这篇文章吗？此操作是<span style="color:red">不可逆的！</span></div>
+          <button id='no' @click.stop="warningFlag = false">取消</button>
+          <button id='yes' @click.stop="deleteArticle('answer')">确定</button>
+        </div>
+      </div>
+    </div>
       <div id="userArticleLst" v-show="pageIndex === 'first'">
           <h1 style="margin-bottom: 3vh">———文章列表———</h1>
         <div id="prisonTips">
@@ -23,12 +32,13 @@
             <div class="articleTitle" v-if="item.articleType === 'prisonTips'">
               <span>{{item.title}}</span>
               <div class="buttonLst">
-                <img src="../public/userArticle/pencil.svg" @click="toType(item.article)">
-                <img src="../public/userArticle/delete.svg">
+                <img src="../public/userArticle/pencil.svg" @click="toType(item.article,item.articleID)">
+                <img src="../public/userArticle/delete.svg" @click="deleteArticle(item.articleID)">
               </div>
             </div>
-            <div style="margin-left: 5%;margin-bottom: 3%;font-style: italic;font-size: 0.8em">{{item.date}}</div>
-          </template>
+            <div style="margin-left: 5%;margin-bottom: 3%;font-style: italic;font-size: 0.8em;clear: both">{{item.date}}<span style="float: right">AID:{{item.articleID}}</span></div>
+
+          </template>&nbsp
           <div style="margin-bottom: 50vh"></div>
         </div>
 
@@ -122,7 +132,8 @@ const content = ref('');
 const myQuillEditor = ref();
 const articles = ref(null)
 const articleContent = ref(null)
-
+const articleID = ref("")
+const warningFlag = ref(false)
 onMounted(()=>{
   axios.post(`http://${FRONTHOST}:${FRONTPORT}/api/getUserArticles`, {
     },
@@ -142,25 +153,55 @@ onMounted(()=>{
       }
     });
   })
-const toType = (article)=>{
+const toType = (article,aID)=>{
   articleContent.value = article
+  articleID.value = aID
+  console.log(articleID.value)
   console.log(articleContent.value)
   pageIndex.value = "second"
 }
+const delID = ref(null)
+const deleteArticle = (aID)=>{
+  if(aID==="answer"){
+    warningFlag.value=false
+    axios.post(`http://${FRONTHOST}:${FRONTPORT}/api/deleteArticle`, {
+          articleID: delID.value
+        },
+        {
+          headers:{
+            token: token.value
+          }
+        }
+    )
+        .then(response => {
+          if (response.data.code === 200){
+            alert("删除成功！")
+            location.reload()
+          }
+        })
+  }else{
+    warningFlag.value = true
+    delID.value = aID
+  }
+ }
 const toEditor = () => {
   if(!articleType.value){
     alert("请重新选择文章类型！")
   }else{
     pageIndex.value = "third"
   }
-  console.log(content)
+  // setTimeout(()=>{
+  //   console.log(myQuillEditor.value)
+  //   myQuillEditor.value.setContents("aaa")
+  //   console.log(myQuillEditor.value)
+  // },1000)
+
 
 }
 const submitContent = async () => {
   try {
     const htmlContent = myQuillEditor.value.getHTML();
     const deltaContent = myQuillEditor.value.getContents();
-    test.value.innerHTML = htmlContent;
     console.log(deltaContent)
     let contentLst = articleHandler(htmlContent);
     if(!contentLst){
@@ -192,9 +233,11 @@ const submitContent = async () => {
     }
 
     // 发起第二个请求
-    let response2 = await axios.post(`http://${BACKHOST}:${FRONTPORT}/api/createArticle`, {
-      content: contentLst,
-      articleType: articleType.value.toString()
+    let response2 = await axios.post(`http://${BACKHOST}:${FRONTPORT}/api/overwriteArticle`, {
+          content: contentLst,
+          articleID: articleID.value,
+          articleType: articleType.value.toString(),
+          deltaContent: deltaContent
     },
         {
           headers: {
@@ -204,14 +247,14 @@ const submitContent = async () => {
     );
 
     console.log(response2.data);
-    alert(response2.data.msg);
+    alert("文章覆写成功！");
+    location.reload()
 
   } catch (error) {
     // 处理错误
     console.error('Error:', error);
   }
 };
-
 
 const setAltText = () => {
   const altText = prompt("请输入图片描述:", "");
@@ -258,7 +301,7 @@ const articleHandler = (htmlText) => {
     alert("标题不能为空！")
     return
   }
-  if(title.includes("<",">")){
+  if(title.includes("&lt")|| title.includes("&gt")|| title.includes("&")){
     alert("非法标题,请修改")
     return
   }
@@ -292,8 +335,7 @@ const articleHandler = (htmlText) => {
       });
     }
   }
-
-  return result;
+    return result;
 }
 </script>
 
@@ -334,6 +376,43 @@ const articleHandler = (htmlText) => {
   }
 }
 
+#deleteWarning{
+  position: fixed;
+  z-index: 999;
+  width: 100vw;
+  height: 100vh;
+  #warningBg{
+    background-color: rgba(0,0,0,0.5);
+    width: 100vw;
+    height: 100vh;
+    border: 0.1px solid transparent;
+    #warningBox{
+      h1{
+        width: fit-content;
+        margin: auto;
+      }
+      #warningContent{
+        width: fit-content;
+        margin: 10% auto;
+      }
+      #no{
+        float: left;
+        margin-left: 10%;
+      }
+      #yes{
+        float: right;
+        margin-right: 10%;
+        color: red;
+      }
+      width: 80vw;
+      height: 20vh;
+      background-color: white;
+      margin: 50% auto;
+      border-radius: 10px; /* 圆角效果使阴影更柔和 */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* 黑色阴影，0 像素水平偏移，8 像素垂直偏移，16 像素模糊，30% 不透明度 */
+    }
+  }
+}
 #warning{
   color: red;
 }
