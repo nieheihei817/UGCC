@@ -1,10 +1,12 @@
-import {createRouter, createWebHashHistory, createWebHistory} from "vue-router";
-import Cinemas from "../views/Cinemas.vue";     //导入路由需要的组件
+import { createRouter, createWebHashHistory } from 'vue-router';
+import Cinemas from "../views/Cinemas.vue";
 import Films from "../views/Films.vue";
 import NowPlaying from "../views/NowPlaying.vue";
-import notFound from "../views/notFound.vue"
-import About from "../About.vue"
-import {defineAsyncComponent} from "vue";
+import notFound from "../views/notFound.vue";
+import About from "../About.vue";
+import { defineAsyncComponent } from "vue";
+import Prism from "prismjs";
+
 const aaa = defineAsyncComponent(() => import('../aaa.vue'));
 const passgae01 = defineAsyncComponent(() => import('../views/GameTips/1.vue'));
 const WanHuZhiShou = defineAsyncComponent(() => import('../views/GameTips/WanHuZhiShou.vue'));
@@ -13,82 +15,112 @@ const LingChen = defineAsyncComponent(() => import('../views/LingChen.vue'));
 const editor = defineAsyncComponent(() => import('../Editor.vue'));
 const Article = defineAsyncComponent(() => import('../Article.vue'));
 const changeEditor = defineAsyncComponent(() => import('../changeEditor.vue'));
-const routes = [        //创建一个路由数组，其中包含对各路径所指向组件的配置
-    {
-        path:"/",
-        redirect:{
-            name:"About"
-        }           //如果为"/"，重定向至/films
-    },
+const gameDetail = defineAsyncComponent(() => import('../gamedDetail.vue'));
+const editorTutorial = defineAsyncComponent(() => import('../editorTutorial.vue'));
+const Support = defineAsyncComponent(() => import('../Support.vue'));
 
-    {
-        path:"/About",
-        component:About,
-        name:"About",
-    },
 
+const routes = [
     {
-        path:"/Prison/intro",
-        component: aaa
+        path: '/',
+        redirect: {
+            name: "About"
+        }
     },
     {
-        path:"/Prison/Tips/1",
+        path: '/About',
+        component: About,
+        name: "About",
+    },
+    {
+        path: '/Support',
+        component: Support,
+        name: "Support",
+    },
+    {
+        path: '/Prison/intro',
+        component: gameDetail
+    },
+    {
+        path: '/Prison/Tips/1',
         component: passgae01
     },
     {
-        path:"/LingChenJiaYou",
+        path: '/LingChenJiaYou',
         component: LingChen
     },
     {
-        path:"/Prison/Tips/WanHuZhiShou",
+        path: '/Prison/Tips/WanHuZhiShou',
         component: WanHuZhiShou
     },
     {
-        path:"/Prison/Tips/PowerStation",
+        path: '/Prison/Tips/PowerStation',
         component: PowerStation
     },
     {
-        path:"/user/editor",
+        path: '/user/editor',
         component: editor
     },
     {
-        path:"/userArticles",
+        path: '/userArticles',
         component: changeEditor
     },
     {
-        path: '/Prison/playerTips',
+        path: '/Dev/editorTutorial',
+        component: editorTutorial,
+        meta: { title: '文档编辑器使用教程' }
+    },
+    {
+        path: '/Articles',
         component: Article,
         children: [
             {
-                path: '', // 确保有一个空路径的配置，用于处理 `/Prison/playerTips` 主路径
+                path: '',
                 component: Article
             },
             {
-                path: ':subPath', // 使用动态路径来捕获所有子路径
+                path: 'Prison/playerTips/:id',
+                component: Article
+            },
+            {
+                path: 'Prison/prisonMods/:id',
+                component: Article
+            },
+            {
+                path: 'Operator/OperatorTips/:id',
+                component: Article
+            },
+            {
+                path: 'Operator/OperatorOthers/:id',
+                component: Article
+            },
+            {
+                path: ':subPath',
                 component: Article
             }
         ]
     }
-]
-//创建路由
+];
+
 const router = createRouter({
-    history:createWebHashHistory(),             //路由模式设为哈希模式
-    routes,
-})
+    history: createWebHashHistory(),
+    routes
+});
 
 // 全局前置守卫
 router.beforeEach((to, from, next) => {
-    // 在路由切换前执行的操作，例如权限验证等
     console.log(`Navigating to ${to.fullPath} from ${from.fullPath}`);
-    console.log("changed")
+    console.log("changed");
     window.scrollTo(0, 0);
-    next(); // 确保调用 next() 方法，否则路由不会继续
+    next();
 });
 
 // 全局后置钩子
 router.afterEach((to, from) => {
-    // 路由切换完成后的操作，例如页面埋点等
+    setTimeout(() => {
+        Prism.highlightAll(); // 全局代码高亮
+    }, 500);
     console.log(`Navigated to ${to.fullPath} from ${from.fullPath}`);
 });
 
-export default router    //暴露
+export default router;

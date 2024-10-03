@@ -59,7 +59,7 @@ onMounted(()=>{
   <div>
     <div id="subitem" @click.stop="handleclick" ref="subitem">
       <slot name="title" id="title"></slot>
-      <div style="color:grey;font-size:5vw;transition:transform linear 0.2s;display: inline-block;float: right" ref="pointer">＋</div>
+      <div id="pointer" ref="pointer">＋</div>
     </div>
     <transition name="sub" @click.stop>
       <div v-show="flag" ref="item" id="item">
@@ -70,21 +70,7 @@ onMounted(()=>{
 </template>
 
 <style scoped>
-#subitem{
-  position: relative;
-  color:#313d44;
-  transition: top,padding-left 1s cubic-bezier(.11, .18, 0, 1.07),background-color 1s cubic-bezier(.11, .18, 0, 1.07),color,border cubic-bezier(.11,.18,0,1.07) 0.2s;
-  padding-left: 0;
-  padding-bottom: 0.5vw;
-  display: inline-block;
-  border-radius: 9999px; /* 使用一个非常大的值，确保左右两侧为半圆 */
-}
-#item{
-  margin-left: 8%;
-  margin-top: 5%;
-  margin-bottom: 10%;
-  font-size: 4.8vw;
-}
+
 .sub-enter-active{
   animation: subanim-enter 0.5s;
 }
@@ -105,6 +91,50 @@ onMounted(()=>{
   }
   to{
     opacity: 0;
+  }
+}
+/* 手机（小屏幕） */
+@media (max-width: 769px) {
+  /* 样式 */
+  #subitem{
+    position: relative;
+    color:#313d44;
+    transition: top,padding-left 1s cubic-bezier(.11, .18, 0, 1.07),background-color 1s cubic-bezier(.11, .18, 0, 1.07),color,border cubic-bezier(.11,.18,0,1.07) 0.2s;
+    padding-left: 0;
+    padding-bottom: 0.5vw;
+    display: inline-block;
+    border-radius: 9999px; /* 使用一个非常大的值，确保左右两侧为半圆 */
+  }
+  #item{
+    margin-left: 8%;
+    margin-top: 5%;
+    margin-bottom: 10%;
+    font-size: 4.8vw;
+  }
+  #pointer{
+    color:grey;font-size:5vw;transition:transform linear 0.2s;display: inline-block;float: right
+  }
+}
+/* 电脑（大屏幕） */
+@media (min-width: 769px) {
+  /* 样式 */
+  #subitem{
+    position: relative;
+    color:#313d44;
+    transition: top,padding-left 1s cubic-bezier(.11, .18, 0, 1.07),background-color 1s cubic-bezier(.11, .18, 0, 1.07),color,border cubic-bezier(.11,.18,0,1.07) 0.2s;
+    padding-left: 0;
+    padding-bottom: 0.5vw;
+    display: inline-block;
+    border-radius: 9999px; /* 使用一个非常大的值，确保左右两侧为半圆 */
+  }
+  #item{
+    margin-left: 8%;
+    margin-top: 5%;
+    margin-bottom: 10%;
+    font-size: 1em;
+  }
+  #pointer{
+    color:grey;font-size:1.2em;transition:transform linear 0.2s;display: inline-block;float: right
   }
 }
 </style>

@@ -49,51 +49,105 @@ export default {
 </script>
 
 <style scoped>
-.circular-progress {
-  position: fixed;
-  bottom: 10vh;
-  right: 5vw;
-  z-index: 700;
-  cursor: pointer; /* 添加光标指示点击效果 */
+/* 电脑（大屏幕） */
+@media (min-width: 769px) {
+  /* 样式 */
+  .circular-progress {
+    position: fixed;
+    bottom: 10vh;
+    right: 5vw;
+    z-index: 700;
+    cursor: pointer; /* 添加光标指示点击效果 */
+  }
+
+  .progress-circle {
+    position: relative;
+    width: 5vw; /* 调整宽度 */
+    height: 5vw; /* 调整高度 */
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* 外部阴影效果 */
+  }
+
+  .svg-circle {
+    width: 100%;
+    height: 100%;
+  }
+
+  .circle-background {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 0.5vw; /* 调整边框宽度 */
+  }
+
+  .circle-progress {
+    fill: none;
+    stroke: #4285f4;
+    stroke-width: 0.5vw; /* 调整边框宽度 */
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.3s ease;
+  }
+
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.6em; /* 调整字体大小 */
+    color: #4285f4;
+  }
+}
+/* 电脑（大屏幕） */
+@media (max-width: 769px) {
+  /* 样式 */
+  .circular-progress {
+    position: fixed;
+    bottom: 10vh;
+    right: 5vw;
+    z-index: 700;
+    cursor: pointer; /* 添加光标指示点击效果 */
+  }
+
+  .progress-circle {
+    position: relative;
+    width: 15vw;
+    height: 15vw;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* 外部阴影效果 */
+  }
+
+  .svg-circle {
+    width: 100%;
+    height: 100%;
+  }
+
+  .circle-background {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 1vw;
+  }
+
+  .circle-progress {
+    fill: none;
+    stroke: #4285f4;
+    stroke-width: 1vw;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.3s ease;
+  }
+
+  .progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5vw;
+    color: #4285f4;
+  }
 }
 
-.progress-circle {
-  position: relative;
-  width: 15vw;
-  height: 15vw;
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* 外部阴影效果 */
-}
-
-.svg-circle {
-  width: 100%;
-  height: 100%;
-}
-
-.circle-background {
-  fill: none;
-  stroke: #eee;
-  stroke-width: 1vw;
-}
-
-.circle-progress {
-  fill: none;
-  stroke: #4285f4;
-  stroke-width: 1vw;
-  stroke-linecap: round;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-  transition: stroke-dashoffset 0.3s ease;
-}
-
-.progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5vw;
-  color: #4285f4;
-}
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s ease;
