@@ -16,12 +16,34 @@ import mainMusicPlayer from "./mainMusicPlayer.vue";
 
     <ul id="supportLst">
       <li>
+        <img src="https://pic.imgdb.cn/item/670095c3d29ded1a8c7ca1bb.jpg">
+        <div class = "info">
+          <h2>邪龙凌度</h2>
+          <p>本月投喂:11￥</p>
+        </div>
+      </li>
+      <li>
+        <img src="https://pic.imgdb.cn/item/67009652d29ded1a8c7d0bfe.jpg">
+        <div class = "info">
+          <h2>一只联合国球</h2>
+          <p style="font-size: 1em">代表我们的盟友CCBE，本月投喂:10￥</p>
+        </div>
+      </li>
+      <li>
         <img src="https://pic.imgdb.cn/item/66e6a16bd9c307b7e97d7c7d.jpg">
         <div class = "info">
-          <h2>11</h2>
+          <h2>TongChi铜赤</h2>
           <p>本月投喂:10￥</p>
         </div>
       </li>
+      <li>
+        <img src="https://pic.imgdb.cn/item/67009753d29ded1a8c7ddd1a.jpg">
+        <div class = "info">
+          <h2>折柳</h2>
+          <p style="font-size: 1em">本月投喂:10￥，同时为官网文档做出巨大贡献</p>
+        </div>
+      </li>
+
       <li>
         <img src="https://pic.imgdb.cn/item/66e6a92fd9c307b7e98b3ad4.jpg">
         <div class = "info">
@@ -30,9 +52,16 @@ import mainMusicPlayer from "./mainMusicPlayer.vue";
         </div>
       </li>
       <li>
-        <img src="https://pic.imgdb.cn/item/66e6a954d9c307b7e98b592d.png">
+        <img src="https://pic.imgdb.cn/item/66cc2295d9c307b7e935cde8.jpg">
         <div class = "info">
-          <h2>1145141919810</h2>
+          <h2 style="font-size: 1.3em">ArmedImmediatel</h2>
+          <p>本月投喂:5￥</p>
+        </div>
+      </li>
+      <li>
+        <img src="https://pic.imgdb.cn/item/67009785d29ded1a8c7e07c5.jpg">
+        <div class = "info">
+          <h2>花开富贵 牧群犬</h2>
           <p>本月投喂:5￥</p>
         </div>
       </li>
