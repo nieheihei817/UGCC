@@ -4,7 +4,7 @@
         <menuIcon id="menuButton" @click.stop.prevent="menuButtonOnclick" ref="menuButton" :isdd="isdd"></menuIcon>
 
         <div id="header">UGCC</div>
-      <div style="width: 14%"></div>
+      <div id="whiteSpace"></div>
       <Search></Search>
       <User></User>
     </div>
@@ -16,12 +16,15 @@
         <li>
           <router-link to="/About" class="custom-link" @click="hideMenu">关于我们</router-link>
         </li>
+        <li>
+          <router-link to="/Support" class="custom-link" @click="hideMenu">支持榜</router-link>
+        </li>
 
         <li>
           <subitem class="subitem" :message="Prison">
             <template #title class="title">监狱建筑师</template>
             <template #item class="item">
-              <router-link to="/Prison/intro" class="custom-link" style="margin-bottom: 5%" >游戏介绍</router-link>
+              <router-link to="/Prison/intro" class="custom-link" style="margin-bottom: 5%" @click="hideMenu">游戏介绍</router-link>
               <subitem class="subitem" :message="Tips">
                 <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
                 <template #item class="item">
@@ -30,29 +33,55 @@
                   <router-link to="/Prison/Tips/PowerStation" class="custom-link" @click="hideMenu">发电机</router-link>
                   <router-link to="/About" class="custom-link" @click="hideMenu">未封闭问题</router-link>
                   <template v-for="(item, index) in articles">
-                    <router-link v-if="item.articleType === 'prisonTips'" :to="`/Prison/playerTips/${item.articleID}`" @click="hideMenu" class="custom-link">{{item.title}}</router-link>
+                    <router-link v-if="item.articleType === 'prisonTips'" :to="`/Articles/Prison/playerTips/${item.articleID}`" @click.prevent="hideMenu" class="custom-link">{{item.title}}</router-link>
                   </template>
-
                 </template>
               </subitem>
-              <subitem class="subitem" :message="Dev">
-                <template #title class="title" style="font-size: 4.8vw">开发文档</template>
+              <subitem class='subitem' :message="prisonMods">
+                <template #title class="title" style="font-size: 4.8vw">模组教程</template>
                 <template #item class="item">
-                  <div>111</div>
-                  <div>222</div>
+                  <template v-for="(i, index) in articles">
+                    <router-link v-if="i.articleType === 'prisonMods'" :to="`/Articles/Prison/prisonMods/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                  </template>
+                </template>
+              </subitem>
+            </template>
+          </subitem>
+          <subitem class="subitem" :message="Ope">
+            <template #title class="title" style="font-size: 4.8vw">112接线员</template>
+            <template #item class="item">
+              <subitem class='subitem' :message="OpeTips">
+                <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
+                <template #item class="item">
+                  <template v-for="(i, index) in articles">
+                    <router-link v-if="i.articleType === 'OperatorTips'" :to="`/Articles/Operator/OperatorTips/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                  </template>
+                </template>
+              </subitem>
+
+              <subitem class='subitem' :message="OpeOthers">
+                <template #title class="title" style="font-size: 4.8vw">其它攻略</template>
+                <template #item class="item">
+                  <template v-for="(i, index) in articles">
+                    <router-link v-if="i.articleType === 'OperatorOthers'" :to="`/Articles/Operator/OperatorOthers/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                  </template>
                 </template>
               </subitem>
             </template>
           </subitem>
 
-
+          <subitem class="subitem" :message="Dev">
+            <template #title class="title" style="font-size: 4.8vw">开发文档</template>
+            <template #item class="item">
+              <router-link to="/Dev/editorTutorial" class="custom-link" @click="hideMenu">文档编辑器使用教程</router-link>
+            </template>
+          </subitem>
           <ul v-show="docflag===true">
           </ul>
         </li>
         <li style="margin-left:0;background: linear-gradient(to top right, #d4eaf7, #b6ccd8);color: #00668c;font-size: 2.1vh;border-radius: 10%;padding: 5%">
           本站已安全运行<br/>{{ hoursDiff }} 小时 {{ minutesDiff }} 分钟 {{ secondsDiff }} 秒
         </li>
-        <li @click="console.log(articles)">tap here</li>
       </ul>
     </div>
     <div id="modal" v-show="menuButtonFlag" @click="hideMenu"></div>
@@ -67,6 +96,10 @@ import Search from "./Search.vue"
 const Prison = 'Prison';
 const Tips = 'Tips';
 const Dev = "Dev"
+const Ope = "Operator"
+const OpeTips = "OperatorTips"
+const OpeOthers = "OperatorOthers"
+const prisonMods = "prisonMods"
 import subitem from "./subitem.vue"
 import "../public/bar/iconfont.css"
 import "../public/fonts/iconfont.css"
@@ -88,15 +121,19 @@ const isSearchOpen = ref(false)
 import conf from "./config.js";
 const {FRONTHOST,FRONTPORT,BACKHOST,BACKPORT} = conf
 import router from "./router/index.js";
+import Prism from "prismjs";
 
-let articles
+const articles = ref(null)
 const getAllArticles = ()=>{
-  axios.post(`http://${BACKHOST}:${BACKPORT}/api/getArticle`, {
+  axios.post(`${BACKHOST}:${BACKPORT}/api/getArticle`, {
     articleType:"all"
   })
       .then(res=>{
-        articles = res.data.articles  //文章列表(只含标题，文章类型)
-
+        articles.value = res.data.articles  //文章列表(只含标题，文章类型)
+        console.log(articles.value)
+        setTimeout(() => {
+          Prism.highlightAll()// 全局代码高亮
+        }, 100)
       })
       .catch(err=>{
 
@@ -160,11 +197,18 @@ const itemOnclick = (name)=>{
     opacity: 1;
   }
 }
-#lingchen{
-  animation: flag infinite alternate 1s;
-  font-style: italic;
-  color: #4CA1AF;
-}
+
+/* 手机（小屏幕） */
+@media (max-width: 769px) {
+  /* 样式 */
+  #whiteSpace{
+    width: 14%
+  }
+  #lingchen{
+    animation: flag infinite alternate 1s;
+    font-style: italic;
+    color: #4CA1AF;
+  }
   #menuButton{
     display: inline-block;
     top: 8%;
@@ -175,6 +219,7 @@ const itemOnclick = (name)=>{
   }
   #menu{
     height: 100vh;
+    overflow: scroll;
     color: #313d44;
     top: 7vh;
     width: 70vw;
@@ -185,11 +230,11 @@ const itemOnclick = (name)=>{
     left: -80vw;
     transition: left cubic-bezier(.27,1.13,1,1) 0.5s;
   }
-#menu ul li{
-  font-size: 6vw;
-  margin-left: 2vw;
-}
-.custom-link{
+  #menu ul li{
+    font-size: 6vw;
+    margin-left: 2vw;
+  }
+  .custom-link{
     color: #313d44;
     display: block;
     margin-bottom: 1.3vh;
@@ -198,37 +243,40 @@ const itemOnclick = (name)=>{
   #menu ul{
     margin-top: 10%;
   }
-.subitem div,.subitem template,router-link{
-  margin-bottom: 5%;
-  font-size: 4.5vw;
-  word-wrap: break-word; /* 在单词内允许换行 */
-  white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
-}
-.navbar{
-  position: fixed;
-  display: flex;
-  justify-content: space-between; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  z-index: 2;
-  width: 100vw;
-  height: 7vh;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 254, 251, 0.9);
-  word-wrap: break-word; /* 在单词内允许换行 */
-  white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
-}
-.navbar Search{
-  opacity: 1;
-}
-.navbar div{
-  display: inline-block;
-}
-#header{
-  font-size: 3em;
-  float: right;
-  color: #00668c;
-}
-#modal{
+  .subitem div,.subitem template,router-link{
+    margin-bottom: 5%;
+    font-size: 4.5vw;
+    word-wrap: break-word; /* 在单词内允许换行 */
+    white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
+  }
+  .subitem{
+    margin: 5% 0;
+  }
+  .navbar{
+    position: fixed;
+    display: flex;
+    justify-content: space-between; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    z-index: 2;
+    width: 100vw;
+    height: 7vh;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 254, 251, 0.9);
+    word-wrap: break-word; /* 在单词内允许换行 */
+    white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
+  }
+  .navbar Search{
+    opacity: 1;
+  }
+  .navbar div{
+    display: inline-block;
+  }
+  #header{
+    font-size: 3em;
+    float: right;
+    color: #00668c;
+  }
+  #modal{
     position: fixed;
     z-index: -1;
     top: 0;
@@ -239,5 +287,97 @@ const itemOnclick = (name)=>{
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+}
+/* 电脑（大屏幕） */
+@media (min-width: 769px) {
+  /* 样式 */
+  #lingchen{
+    animation: flag infinite alternate 1s;
+    font-style: italic;
+    color: #4CA1AF;
+  }
+  #menuButton{
+    display: inline-block;
+    top: 8%;
+  }
+  #menuButton span{
+    font-size: 9vw;
+    color:#f5f4f1;
+  }
+  #menu{
+    height: 100vh;
+    overflow: scroll;
+    color: #313d44;
+    top: 7vh;
+    width: 20vw;
+    border-radius: 2% 2%;
+    background-color: rgba(245, 244, 241, 0.95);
+    position: fixed;
+    z-index: 1;
+    left: -80vw;
+    transition: left cubic-bezier(.27,1.13,1,1) 0.5s;
+  }
+  #menu ul li{
+    font-size: 1.2em;
+    margin-left: 2vw;
+  }
+  .custom-link{
+    color: #313d44;
+    display: block;
+    margin-bottom: 1.3vh;
+    width: fit-content; /* 让列表的宽度根据内容来自动调整 */
+  }
+  #menu ul{
+    margin-top: 10%;
+  }
+  .subitem div,.subitem template,router-link{
+    margin-bottom: 5%;
+    font-size: 1em;
+    word-wrap: break-word; /* 在单词内允许换行 */
+    white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
+  }
+  .subitem{
+    margin: 5% 0;
+  }
+  .navbar{
+    position: fixed;
+    display: flex;
+    justify-content: space-between; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    z-index: 2;
+    width: 100vw;
+    height: 7vh;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 254, 251, 0.9);
+    word-wrap: break-word; /* 在单词内允许换行 */
+    white-space: pre-wrap; /* 保留空白符序列，但是合并换行符 */
+  }
+  .navbar Search{
+    opacity: 1;
+  }
+  .navbar div{
+    display: inline-block;
+  }
+  #header{
+    font-size: 3em;
+    float: right;
+    color: #00668c;
+  }
+  #modal{
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #whiteSpace{
+    width: 50%
+  }
 }
 </style>

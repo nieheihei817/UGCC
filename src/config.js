@@ -1,7 +1,7 @@
 const config = {
-    FRONTHOST: 'localhost',
-    FRONTPORT:'5173',
-    BACKHOST: 'localhost',
-    BACKPORT:'80',
+    FRONTHOST: 'https://www.ugcc.fun',
+    FRONTPORT: '443',
+    BACKHOST: 'https://www.ugcc.fun',
+    BACKPORT:'443',
 }
 export default config

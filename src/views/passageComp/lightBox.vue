@@ -55,12 +55,29 @@ const onHide = () => (visibleRef.value = false)
 </template>
 
 <style scoped>
-#container{
-  color: gray;
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  font-size: 4vw;
-  font-style: italic;
-  margin-bottom: 1.5vh;
+
+/* 电脑（大屏幕） */
+@media (min-width: 769px) {
+  /* 样式 */
+  #container{
+    color: gray;
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    font-size: 1em;
+    font-style: italic;
+    margin-bottom: 1.5vh;
+  }
+}
+/* 电脑（大屏幕） */
+@media (max-width: 769px) {
+  /* 样式 */
+  #container{
+    color: gray;
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    font-size: 4vw;
+    font-style: italic;
+    margin-bottom: 1.5vh;
+  }
 }
 </style>
