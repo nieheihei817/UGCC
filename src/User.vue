@@ -31,19 +31,21 @@ const reqPer = () =>{
     })
         .then(response => {
           if(response.data.code===403){
+            console.log("token过期")
             alert("登录已过期，请重新登录")
             // 清除 localStorage 中的 'token'
             localStorage.removeItem('token');
             islogin.value = false
+          }else{
+            tokenUsername.value= response.data.userData.username
+            permission.value = response.data.userData.permissions
+            console.log(permission.value)
+            permissionDes.value = response.data.userData.permissionDes
+            avatar.value = response.data.userData.avatar
+            console.log(permissionDes.value)
+            console.log(tokenUsername.value)
+            // 请求成功，处理后端返回的数据
           }
-          tokenUsername.value= response.data.userData.username
-          permission.value = response.data.userData.permissions
-          console.log(permission.value)
-          permissionDes.value = response.data.userData.permissionDes
-          avatar.value = response.data.userData.avatar
-          console.log(permissionDes.value)
-          console.log(tokenUsername.value)
-          // 请求成功，处理后端返回的数据
         })
         .catch(error => {
           // 请求失败，处理错误
@@ -138,22 +140,6 @@ const deleteUser = ()=>{
           console.log("删除成功！")
         });
   }
-}
-//请求UID函数
-const reqID = ()=>{
-  // 使用 axios 或者其他 HTTP 请求库发送 POST 请求
-  axios.post(`${FRONTHOST}:${FRONTPORT}/api/ID`, {
-    ID: CookieUserID.value.toString(),
-  })
-      .then(response => {
-        // 请求成功，处理后端返回的数据
-        console.log(response.data);  // 这里的 response.data 是后端返回的 JSON 数据
-        console.log("找到"+response.data.username);
-      })
-      .catch(error => {
-        // 请求失败，处理错误
-        console.error('Error:', error);
-      });
 }
 const toEditor = () =>{
   router.push('/user/editor')

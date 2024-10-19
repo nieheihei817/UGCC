@@ -140,9 +140,7 @@ const getAllArticles = ()=>{
       })
   return articles
 }
-onMounted(()=>{
-  getAllArticles()
-})
+getAllArticles()
 // 计算时间差
 const calculateTimeDifference = () => {
   const currentTime = new Date();

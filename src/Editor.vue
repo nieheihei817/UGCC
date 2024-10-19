@@ -91,7 +91,7 @@ const isTypeOpen = ref(true)
 const articleType = ref(null)
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import '@wangeditor/editor/dist/css/style.css'
-import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+import {ref, onMounted, onBeforeUnmount, shallowRef, onBeforeMount} from 'vue'
 const isLoading = ref(false)
 const articleTitle = ref('')
 const editorRef = shallowRef()
@@ -184,22 +184,41 @@ const mode = 'default' // 或 'simple'
 
 
 
+// 在路由进入前触发
+onBeforeMount(() => {
+  // 可以在这里进行数据获取，例如从 API 获取数据
+  if(!token.value){
+    alert("请先登录")
+    router.push("/About")
+  }
+  if(token.value){
+    console.log(token.value)
+    axios.post(`${FRONTHOST}:${FRONTPORT}/api/verifyToken`, {
+      token: token.value
+    })
+        .then(response => {
+          if(response.data.code===403){
+            console.log("token过期")
+            alert("登录已过期，请重新登录")
+            // 清除 localStorage 中的 'token'
+            localStorage.removeItem('token');
+            router.push('/About')
+          }
+        })
+        .catch(error => {
+          // 请求失败，处理错误
+          console.error('Error:', error);
+        });
+  }else{
+    console.log("当前未登录")
+  }
+});
 
 
 
 
-
-const test = ref(null)
 onMounted(()=>{
-  tinymce.init({
-    selector:'#tinyEditor'
-  })
-})
-onMounted(()=>{
-    if(!token.value){
-      alert("请先登录")
-      router.push("/About")
-    }
+
 })
 hljs.configure({
   languages: ['javascript', 'python', 'java', 'lua']

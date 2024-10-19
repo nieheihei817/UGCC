@@ -7,9 +7,7 @@ import OP from "../../nodePra/resources/OP.png"
 import roblox from "../public/roblox.png"
 import nieheihei from "../public/nieheihei.jpg"
 import 'swiper/swiper-bundle.css';
-import Swiper from 'swiper/bundle';
 import { useSwipeDetection } from './useSwipeDetection';
-import {onBeforeRouteLeave} from "vue-router";
 
 let scrollDistance = 0
 const firstPage = ref(true)

@@ -4,7 +4,7 @@ import Films from "../views/Films.vue";
 import NowPlaying from "../views/NowPlaying.vue";
 import notFound from "../views/notFound.vue";
 import About from "../About.vue";
-import { defineAsyncComponent } from "vue";
+import {defineAsyncComponent, ref} from "vue";
 import Prism from "prismjs";
 
 const aaa = defineAsyncComponent(() => import('../aaa.vue'));

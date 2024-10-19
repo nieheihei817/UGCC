@@ -1,7 +1,7 @@
 <script setup>
 // 导航守卫，处理页面滚动到顶部
 import Navbar from "./navbar.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import Cookies from "js-cookie";
 import cookieIcon from "../public/bxs-cookie.svg"
 const agreeCookie = ref(false);
