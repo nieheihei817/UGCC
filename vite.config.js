@@ -21,6 +21,10 @@ export default defineConfig({
         target: 'http://localhost:80', // 后端API的地址
         changeOrigin: true,
       },
+      '/app-release_sign.apk':{
+        target: 'http://localhost:80', // 后端API的地址
+        changeOrigin: true,
+      }
     },
   },
 

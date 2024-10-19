@@ -1,4 +1,4 @@
-
+<!--这是个测试组件-->
 <template>
   <div id="rootA">
     <div class="element">
