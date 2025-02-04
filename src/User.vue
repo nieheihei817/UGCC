@@ -1,6 +1,7 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import config from './config.js'
+import CryptoJS from 'crypto-js';
 const {FRONTHOST,FRONTPORT,BACKHOST,BACKPORT} = config
 import { useSession } from './useSessions.js';
 import Cookies from "js-cookie"
@@ -17,44 +18,32 @@ const allCookies = ref(null)
 const permission = ref("")
 const permissionDes = ref("")
 const avatar = ref("")
-
+const secretKey = "UGCC_nhh_CreekChen";
 onMounted(()=>{
   reqPer()
 })
 //请求用户信息函数
 const reqPer = () =>{
-  allCookies.value = document.cookie
-  if(token.value){
-    console.log(token.value)
-    axios.post(`${FRONTHOST}:${FRONTPORT}/api/verifyToken`, {
-          token: token.value
-    })
-        .then(response => {
-          if(response.data.code===403){
-            console.log("token过期")
-            alert("登录已过期，请重新登录")
-            // 清除 localStorage 中的 'token'
-            localStorage.removeItem('token');
-            islogin.value = false
-          }else{
-            tokenUsername.value= response.data.userData.username
-            permission.value = response.data.userData.permissions
-            console.log(permission.value)
-            permissionDes.value = response.data.userData.permissionDes
-            avatar.value = response.data.userData.avatar
-            console.log(permissionDes.value)
-            console.log(tokenUsername.value)
-            // 请求成功，处理后端返回的数据
-          }
-        })
-        .catch(error => {
-          // 请求失败，处理错误
-          console.error('Error:', error);
-        });
-  }else{
-    console.log("当前未登录")
-  }
-
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/verifyToken`, {
+  })
+      .then(response => {
+        if(response.data.code===403){
+          console.log("token过期")
+          islogin.value = false
+        }else{
+          tokenUsername.value= response.data.userData.username.toString()
+          permission.value = response.data.userData.permissions.toString()
+          permissionDes.value = response.data.userData.permissionDes.toString()
+          avatar.value = response.data.userData.avatar.toString()
+          console.log(CryptoJS.AES.decrypt(response.data.userData.username, secretKey).toString())
+          console.log(tokenUsername.value)
+          // 请求成功，处理后端返回的数据
+        }
+      })
+      .catch(error => {
+        // 请求失败，处理错误
+        console.error('Error:', error);
+      });
 }
 //获取当前页面cookies
 const getToken = ()=>{
@@ -63,7 +52,7 @@ const getToken = ()=>{
 //右上角用户图标点击事件
 const handleUserClick = ()=>{
   userFlag.value = !userFlag.value
-  getToken()
+  reqPer()
 
   if(!token.value){
     console.log("没有token")
@@ -71,16 +60,17 @@ const handleUserClick = ()=>{
   }
   if(token.value){
     islogin.value = true
-    reqPer()
+
     console.log(tokenUsername.value)
   }
 }
+
 //验证用户信息，登录操作（输入密码和用户名）
 const reqData = ()=>{
   // 使用 axios 或者其他 HTTP 请求库发送 POST 请求
   axios.post(`${FRONTHOST}:${FRONTPORT}/api/login`, {
-    username: username.value,
-    password: password.value
+    username: CryptoJS.AES.encrypt(username.value, secretKey).toString(),
+    password: CryptoJS.AES.encrypt(password.value, secretKey).toString()
   })
       .then(response => {
         // 请求成功，处理后端返回的数据
@@ -102,9 +92,26 @@ const reqData = ()=>{
 }
 // 创建一个名为 `clearAllCookies` 的 composable 函数
 const logout = () => {
-  // 清除 localStorage 中的 'token'
-  localStorage.removeItem('token');
-  location.reload()
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/logOut`, {})
+      .then(response => {
+        // 请求成功，处理后端返回的数据
+        console.log(response.data);  // 这里的 response.data 是后端返回的 JSON 数据
+        if(response.data.code===200){
+          islogin.value = !islogin.value
+          tokenUsername.value = ""
+          permission.value = ""
+          permissionDes.value = ""
+          avatar.value = ""
+          location.reload()
+        }
+        if(response.data.code===403){
+          alert("非法请求")
+        }
+      })
+      .catch(error => {
+        // 请求失败，处理错误
+        console.error('Error:', error);
+      });
 }
 const signUp =()=>{
   const username = window.prompt("用户名")
@@ -116,11 +123,11 @@ const signUp =()=>{
   if(sure === 'y'){
     console.log("perm"+perm)
     axios.post(`${FRONTHOST}:${FRONTPORT}/api/signUp`, {
-      username: username,
-      password: pwd,
-      permissions: perm,
-      permissionDes: permDes,
-      avatar: ava
+      username: CryptoJS.AES.encrypt(username, secretKey).toString(),
+      password: CryptoJS.AES.encrypt(pwd, secretKey).toString(),
+      permissions: CryptoJS.AES.encrypt(perm, secretKey).toString(),
+      permissionDes: CryptoJS.AES.encrypt(permDes, secretKey).toString(),
+      avatar: CryptoJS.AES.encrypt(ava, secretKey).toString()
     })
         .then(response => {
           if(response.code === 200)
@@ -197,8 +204,8 @@ const exportLog = ()=>{
             </div>
           </form>
         </div>
-
       </div>
+
       <div v-show="islogin">
         <div id="userContentBox">
           <img id="headPhoto" :src="avatar">

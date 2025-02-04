@@ -91,7 +91,7 @@ const routes = [
                 component: Article
             },
             {
-                path: 'Operator/OperatorOthers/:id',
+                path: 'Operator/OperatorMods/:id',
                 component: Article
             },
             {

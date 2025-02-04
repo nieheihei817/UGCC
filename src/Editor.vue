@@ -46,7 +46,7 @@
             <input type="radio" v-model="articleType" value="OperatorTips"><span>112接线员————游戏攻略</span>
           </div>
           <div class="typeRadio">
-            <input type="radio" v-model="articleType" value="OperatorOthers"><span>112接线员————其他教程</span>
+            <input type="radio" v-model="articleType" value="OperatorMods"><span>112接线员————模组教程</span>
           </div>
           <div class="typeRadio">
             <input type="radio" v-model="articleType" value="developDocs" disabled><del>开发文档</del> <div style="color: red">开发文档暂不支持由普通开发者编写</div>
@@ -304,12 +304,12 @@ const submitContent = async () => {
     // 创建一个 Set 存储 array2 中的 key 值
     const array2Keys = new Set(finalImgLst.map(item => item.src));
 
-  // 遍历 array1 并检查每个对象的 key 是否不存在于 array2Keys 中
+    // 遍历 array1 并检查每个对象的 key 是否不存在于 array2Keys 中
     const result = imgLst.filter(item => !array2Keys.has(item.src));
     console.log("比对数组：")
     console.log(result);
     const htmlContent = valueHtml.value;
-    const textContent = ''
+    const textContent = extractTextContent(htmlContent); // 提取文本内容
     console.log(valueHtml.value)
     let contentLst = articleHandler(htmlContent);
     if(!contentLst){
@@ -331,11 +331,10 @@ const submitContent = async () => {
 
     console.log(response1.data);
 
-
     // 发起第二个请求
     let response2 = await axios.post(`${BACKHOST}:${FRONTPORT}/api/createArticle`, {
       content: contentLst,
-      textContent: textContent,
+      textContent: textContent, // 添加 textContent 字段
       articleType: articleType.value.toString(),
     },
         {
@@ -416,6 +415,14 @@ const articleHandler = (htmlText) => {
 
   return result;
 }
+
+// 新增函数：提取文本内容
+const extractTextContent = (htmlContent) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  return tempDiv.textContent || tempDiv.innerText || '';
+}
+
 </script>
 
 <style scoped lang="scss">

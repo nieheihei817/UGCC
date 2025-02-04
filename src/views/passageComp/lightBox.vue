@@ -41,7 +41,7 @@ const onHide = () => (visibleRef.value = false)
 
 <template>
   <div>
-    <div @click="showSingle">
+    <div @click="showSingle" style="width: 90vw;height: 27vh;margin-bottom: 3%">
       <slot name="image"></slot>
     </div>
     <div id="container"><slot name="des"></slot></div>

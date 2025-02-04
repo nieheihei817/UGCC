@@ -4,17 +4,16 @@
     <div id="box" v-if="searchFlag">
       <div @click="handleSearchMenu" id="cancelIcon">x</div>
       <div class="search-container">
-        <input class="search-input" type="text" v-model="searchText" placeholder="全站检索...">
+        <input class="search-input" type="text" v-model="searchText" @input='searchEvent' placeholder="全站检索...">
       </div>
-      <ul class="resultLst" v-if="filteredList.length">
-        <li v-for="(item, index) in filteredList" :key="index" @click="toPassage(item.path)">
-
-          <h2 id="PassageType" v-if="index === filteredList.findIndex(el => el.type === item.type)">
-            {{ item.type }} <!-- 显示类型作为标题 -->
-          </h2>
-          <div id="contentBox">
-            <h1 id="PassageTitle" v-html="highlightTitle(item.title)"></h1>
-            <p id="PassageContent" v-html="processPassage(item.passage)"></p>
+      <ul class="resultLst" v-if="groupedResults.length">
+        <li v-for="(group, groupIndex) in groupedResults" :key="groupIndex">
+          <h2 id="PassageType">{{ group.articleType }}</h2>
+          <div v-for="(item, itemIndex) in group.articles" :key="item.articleID" @click="toPassage(item)">
+            <div id="contentBox">
+              <h1 id="PassageTitle" v-html="highlightTitle(item.title)"></h1>
+              <p id="PassageContent" v-html="item.textContent"></p>
+            </div>
           </div>
         </li>
       </ul>
@@ -22,107 +21,139 @@
   align-items: center; /* 垂直居中 */margin: 30% auto;height: 50vh" ><p style="margin-bottom: 20vh">没有找到匹配的结果。</p></div>
     </div>
   </transition>
-
 </template>
 
-<script>
+<script setup>
 import { ref, computed } from 'vue';
 import data from '../public/PassageData.json';
 import { useRouter } from 'vue-router';
-import SearchIcon from "./searchIcon.vue"
-import cancel from "./cancel.vue";
+import SearchIcon from "./searchIcon.vue";
 import router from "./router/index.js";
-export default {
-  components: {SearchIcon},
-  setup() {
-    const searchFlag = ref(false)
-    const searchText = ref('');
-    const lst = ref(data);
-    const filteredList = computed(() => {
-      const text = searchText.value.toLowerCase().trim();
-      if (!text) return [];
+import axios from "axios";
+import config from "./config.js";
+import _ from 'lodash'; // 引入 lodash 库
 
-      return lst.value.filter(item => {
-        return item.title.toLowerCase().includes(text) || item.passage.toLowerCase().includes(text);
-      });
-    });
+const {FRONTHOST,FRONTPORT,BACKHOST,BACKPORT} = config
+const searchFlag = ref(false);
+const searchText = ref('');
+const lst = ref(data);
+const resultLst = ref([]);
 
-    const processPassage = (passage) => {
-      const text = searchText.value.toLowerCase().trim();
-
-      if (!text) return passage;
-
-      const index = passage.toLowerCase().indexOf(text);
-      if (index === -1) {
-        // 如果文章内容中不包含搜索关键词
-        const truncatedText = passage.substring(0, 30);
-        if (passage.length > 30) {
-          return truncatedText + '...';
-        } else {
-          return truncatedText;
-        }
-      }
-
-      let start = Math.max(index - 16, 0);
-      let end = Math.min(index + text.length + 20, passage.length);
-
-      let processedText = '';
-      if (start > 0) {
-        processedText += '...';
-      }
-      processedText += passage.substring(start, end);
-      if (end < passage.length) {
-        processedText += '...';
-      }
-
-      processedText = processedText.replace(new RegExp(text, 'gi'), match => `<mark style="background-color: #71c4ef">${match}</mark>`);
-
-      return processedText;
-    };
-
-    const highlightTitle = (title) => {
-      const text = searchText.value.toLowerCase().trim();
-
-      if (!text || !title) return title;
-
-      const regex = new RegExp(text, 'gi');
-      const highlightedTitle = title.replace(regex, match => `<mark style="background-color: #71c4ef">${match}</mark>`);
-
-      return `<span class="title-highlight">${highlightedTitle}</span>`;
-    };
-    const handleSearchMenu = ()=>{
-      searchFlag.value = !searchFlag.value
-      if(searchFlag.value){
-        document.body.style.overflow = 'hidden';
-
-      }else{
-        document.body.style.overflow = 'scroll';
-        clearSearch()
-      }
-
-    }
-    const toPassage = (path) => {
-      searchFlag.value=!searchFlag
-      router.push(path);
-      clearSearch()
-      document.body.style.overflow = 'scroll';
-    };
-
-    const clearSearch = () => {
-      searchText.value = '';
-    };
-    return {
-      searchText,
-      filteredList,
-      processPassage,
-      highlightTitle,
-      toPassage,
-      clearSearch,
-      handleSearchMenu,
-      searchFlag
-    };
+// 使用 lodash 的 debounce 函数进行防抖处理
+const searchEvent = _.debounce(() => {
+  if (searchText.value.trim() === '') {
+    // 如果输入栏为空，则不触发
+    return;
   }
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/searchArticles`,{
+    keyword: searchText.value,
+  })
+    .then(response => {
+      resultLst.value = response.data;  // 深拷贝
+      console.log(resultLst.value);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+}, 200); // 防抖时间为1秒
+
+const processPassage = (passage) => {
+  const text = searchText.value.toLowerCase().trim();
+
+  if (!text) return passage;
+
+  const index = passage.toLowerCase().indexOf(text);
+  if (index === -1) {
+    // 如果文章内容中不包含搜索关键词
+    const truncatedText = passage.substring(0, 30);
+    if (passage.length > 30) {
+      return truncatedText + '...';
+    } else {
+      return truncatedText;
+    }
+  }
+
+  let start = Math.max(index - 16, 0);
+  let end = Math.min(index + text.length + 20, passage.length);
+
+  let processedText = '';
+  if (start > 0) {
+    processedText += '...';
+  }
+  processedText += passage.substring(start, end);
+  if (end < passage.length) {
+    processedText += '...';
+  }
+
+  processedText = processedText.replace(new RegExp(text, 'gi'), match => `<mark style="background-color: #71c4ef">${match}</mark>`);
+
+  return processedText;
 };
+
+const highlightTitle = (title) => {
+  const text = searchText.value.toLowerCase().trim();
+  console.log(text)
+  if (!text || !title) return title;
+
+  const regex = new RegExp(text, 'gi');
+  const highlightedTitle = title.replace(regex, match => `<mark style="background-color: #71c4ef">${match}</mark>`);
+  console.log(highlightedTitle.toString())
+  return `<span class="title-highlight">${highlightedTitle}</span>`;
+};
+const handleSearchMenu = () => {
+  searchFlag.value = !searchFlag.value;
+  if (searchFlag.value) {
+    document.body.style.overflow = 'hidden';
+
+  } else {
+    document.body.style.overflow = 'scroll';
+    clearSearch();
+  }
+
+};
+const toPassage = (item) => {
+  searchFlag.value = !searchFlag;
+  // 根据 articleType 和 articleID 构建路径
+  // 新增 articleTypePathMap 映射表
+  const articleTypePathMap = {
+    'prisonTips': 'Articles/Prison/playerTips',
+    'prisonMods': 'Articles/Prison/prisonMods',
+    'OperatorTips': 'Articles/Operator/operatorTips',
+    'OperatorMods': 'Articles/Operator/operatorMods'
+    // 添加其他类型映射
+  };
+
+  const path = `/${articleTypePathMap[item.articleType]}/${item.articleID}`;
+  router.push(path);
+  clearSearch();
+  document.body.style.overflow = 'scroll';
+};
+
+const clearSearch = () => {
+  searchText.value = '';
+};
+
+// 新增 articleTypeMap 映射表
+const articleTypeMap = {
+  'prisonTips': '监狱建筑师——游戏攻略',
+  'prisonMods': '监狱建筑师——模组教程',
+  'OperatorTips': '112接线员——游戏攻略',
+  'OperatorMods': '112接线员——模组教程'
+  // 添加其他类型映射
+};
+
+// 修改计算属性，将结果按 articleType 分组并替换为中文名称
+const groupedResults = computed(() => {
+  const grouped = {};
+  resultLst.value.forEach(item => {
+    const articleTypeZh = articleTypeMap[item.articleType] || item.articleType; // 如果没有映射则使用原类型
+    if (!grouped[articleTypeZh]) {
+      grouped[articleTypeZh] = { articleType: articleTypeZh, articles: [] };
+    }
+    grouped[articleTypeZh].articles.push(item);
+  });
+  return Object.values(grouped);
+});
 </script>
 
 <style>

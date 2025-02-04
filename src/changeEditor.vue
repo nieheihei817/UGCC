@@ -79,16 +79,16 @@
             </div>
             <div style="margin-left: 5%;margin-bottom: 3%;font-style: italic;font-size: 0.8em;clear: both" v-if="item.articleType === 'OperatorTips'">{{item.date}}<span style="float: right">AID:{{item.articleID}}</span></div>
           </template>
-          <h2 class="typeTitle">112接线员————其它攻略</h2>
+          <h2 class="typeTitle">112接线员————模组教程</h2>
           <template v-for="item in articles" :key="item.articleID">
-            <div class="articleTitle" v-if="item.articleType === 'OperatorOthers'">
+            <div class="articleTitle" v-if="item.articleType === 'OperatorMods'">
               <span>{{item.title}}</span>
               <div class="buttonLst">
                 <img src="../public/userArticle/pencil.svg" @click="toType(item.article,item.articleID)">
                 <img src="../public/userArticle/delete.svg" @click="deleteArticle(item.articleID)">
               </div>
             </div>
-            <div style="margin-left: 5%;margin-bottom: 3%;font-style: italic;font-size: 0.8em;clear: both" v-if="item.articleType === 'OperatorOthers'">{{item.date}}<span style="float: right">AID:{{item.articleID}}</span></div>
+            <div style="margin-left: 5%;margin-bottom: 3%;font-style: italic;font-size: 0.8em;clear: both" v-if="item.articleType === 'OperatorMods'">{{item.date}}<span style="float: right">AID:{{item.articleID}}</span></div>
           </template>
         </div>
         <div style="margin-bottom: 40vh"></div>
@@ -110,7 +110,7 @@
             <input type="radio" v-model="articleType" value="OperatorTips"><span>112接线员————游戏攻略</span>
           </div>
           <div class="typeRadio">
-            <input type="radio" v-model="articleType" value="OperatorOthers"><span>112接线员————其他教程</span>
+            <input type="radio" v-model="articleType" value="OperatorMods"><span>112接线员————模组教程</span>
           </div>
           <div class="typeRadio">
             <input type="radio" v-model="articleType" value="developDocs" disabled><del>开发文档</del> <div style="color: red">开发文档暂不支持由普通开发者编写</div>
@@ -440,7 +440,7 @@ const submitContent = async () => {
     const finalResultLst = result.concat(result2);
     console.log(finalResultLst)
     const htmlContent = valueHtml.value;
-    const textContent = "";
+    const textContent = extractTextContent(htmlContent); // 提取文本内容
     console.log(htmlContent)
     let contentLst = articleHandler(htmlContent);
     if(!contentLst){
@@ -456,20 +456,18 @@ const submitContent = async () => {
     }
 
     // 发起第一个请求
-    let response1 = await axios.post(`${BACKHOST}:${BACKPORT}/api/deleteImage`, {
+    let response1 = await axios.post(`${BACKHOST}:${FRONTPORT}/api/deleteImage`, {
       deleteImgLst: finalResultLst
     });
 
     console.log(response1.data);
-
-
 
     // 发起第二个请求
     let response2 = await axios.post(`${BACKHOST}:${FRONTPORT}/api/overwriteArticle`, {
           content: contentLst,
           articleID: articleID.value,
           articleType: articleType.value.toString(),
-          textContent: textContent
+          textContent: textContent // 添加 textContent 字段
     },
         {
           headers: {
@@ -488,6 +486,13 @@ const submitContent = async () => {
     console.error('Error:', error);
   }
 };
+
+// 新增函数：提取文本内容
+const extractTextContent = (htmlContent) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  return tempDiv.textContent || tempDiv.innerText || '';
+}
 const toAPISrclst = ref([])
 const articleHandler = (htmlText) => {
   // 匹配 <img> 标签的正则表达式
@@ -742,6 +747,4 @@ const articleHandler = (htmlText) => {
   }
 
 }
-
 </style>
-

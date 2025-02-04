@@ -15,6 +15,7 @@ export default defineConfig({
   ],
   // 其他配置项
   server: {
+    host: '0.0.0.0', // 允许所有设备访问
     port:5173,
     proxy: {
       '/api': {

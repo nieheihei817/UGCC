@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 const toggleIsdd = () => {
-  props.isdd = !props.isdd;
+
 };
 </script>
 <style lang="scss" scoped>

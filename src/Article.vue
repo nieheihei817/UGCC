@@ -28,13 +28,15 @@ import 'prismjs/components/prism-css.js';
 import 'prismjs/components/prism-csharp.js';
 import CircularProgressIndicator from "./views/passageComp/CircularProgressIndicator.vue";
 import JoinUs from "./views/passageComp/joinUs.vue";
+import CryptoJS from "crypto-js";
 const {FRONTHOST,FRONTPORT,BACKHOST,BACKPORT} = config
 const route = useRoute();
 const author = ref('')
+const authorAvatar = ref('')
 const lastDate = ref('')
 const routeChanged = ref(false)
 const article = ref(null)
-const isLogin = ref(localStorage.getItem('token'))
+const isLogin = ref(false)
 const title = ref('')
 
 onMounted(()=>{
@@ -42,7 +44,7 @@ onMounted(()=>{
   setTimeout(() => {
     Prism.highlightAll()// 全局代码高亮
   }, 500)
-  axios.post(`${FRONTHOST}:${BACKPORT}/api/getArticleContent`, {
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/getArticleContent`, {
     articleID: lastPathSegment.value
   }).then(res => {
     if (res.data.code === 200) {
@@ -50,6 +52,7 @@ onMounted(()=>{
       title.value = res.data.article.title
       article.value = res.data.article.article
       author.value = res.data.article.author
+      authorAvatar.value = res.data.article.authorAvatar
       lastDate.value = res.data.article.date
       console.log(res.data.article.article)
     } else {
@@ -57,12 +60,31 @@ onMounted(()=>{
   }).catch(err => {
     console.log(err);
   });
+
+  // 使用 axios 或者其他 HTTP 请求库发送 POST 请求
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/haveToken`, {
+
+  })
+      .then(response => {
+        // 请求成功，处理后端返回的数据
+        console.log(response.data);  // 这里的 response.data 是后端返回的 JSON 数据
+        if(response.data.state==="noData"){
+            isLogin.value = false
+        }
+        if(response.data.state==="haveToken"){
+            isLogin.value = true
+        }
+      })
+      .catch(error => {
+        // 请求失败，处理错误
+        console.error('Error:', error);
+      });
 })
 
 onBeforeRouteUpdate((to, from, next) => {
   routeChanged.value = true;
   lastPathSegment.value = to.path.substring(to.path.lastIndexOf('/') + 1);
-  axios.post(`${FRONTHOST}:${BACKPORT}/api/getArticleContent`, {
+  axios.post(`${FRONTHOST}:${FRONTPORT}/api/getArticleContent`, {
      articleID: lastPathSegment.value.toString()
   }).then(res => {
     if (res.data.code === 200) {
@@ -70,6 +92,8 @@ onBeforeRouteUpdate((to, from, next) => {
       title.value = res.data.article.title
       article.value = res.data.article.article
       author.value = res.data.article.author
+      authorAvatar.value = res.data.article.authorAvatar
+      console.log('头像',authorAvatar.value)
       lastDate.value = res.data.article.date
       console.log("文章"+article.value)
       setTimeout(()=>{
@@ -112,9 +136,7 @@ const lastPathSegment = ref(fullPath.split('/').filter(segment => segment !== ''
       </div>
       <join-us v-if="!isLogin"></join-us>
       <div id="articleFooter" style="margin-top: 15%">
-        <div>本文作者:{{author}}</div>
-      </div>
-      <div id="articleFooter">
+        <div><img class='authorAvatar' :src=authorAvatar><span>{{author}}</span></div>
         <div>最后编辑日期：{{lastDate}}</div>
       </div>
       <circular-progress-indicator></circular-progress-indicator>
@@ -307,7 +329,8 @@ code {
     animation: uniflag 0.8s infinite alternate;
   }
   #article img{
-    width: 90vw;
+    width: 100%;
+    height: 100%;
     border-radius: 5%;
     margin: 0 auto;
   }
@@ -352,10 +375,13 @@ code {
 
 
 #articleFooter{
-  display: flex;
-  justify-content: end;
-  flex-wrap: wrap;
+  width: fit-content;
+  margin-left: auto;
   margin-right: 5%;
+  margin-bottom: 5%;
+  span{
+    font-size: 1.3em;
+  }
 }
 /* 渐变设置 */
 .fad-enter-from, .fad-leave-to {
@@ -388,5 +414,12 @@ td {
   border: 1px solid #ddd; /* 边框颜色略淡于表头 */
   padding: 8px;
 }
-
+.authorAvatar{
+  width: 10vw;
+  vertical-align: middle;
+  margin-right: 3vw;
+  margin-bottom: 1vh;
+  border-radius: 50%;
+  text-align: center;
+}
 </style>

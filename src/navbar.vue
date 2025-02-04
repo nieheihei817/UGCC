@@ -8,82 +8,86 @@
       <Search></Search>
       <User></User>
     </div>
-    <div id="menu" ref="menu">
-      <ul>
-        <li style="box-shadow:2px 2px 2px #d4eaf7;border: 2px solid #71c4ef;width: 90%;padding: 5% 1%;border-radius: 6% 6%;">
-          <router-link id="lingchen" to="/LingChenJiaYou" class="custom-link" @click="hideMenu" style="font-size: 0.8em;color:#00668c;">向抗癌斗争中的联盟管理致敬</router-link>
-        </li>
-        <li>
-          <router-link to="/About" class="custom-link" @click="hideMenu">关于我们</router-link>
-        </li>
-        <li>
-          <router-link to="/Support" class="custom-link" @click="hideMenu">支持榜</router-link>
-        </li>
 
-        <li>
-          <subitem class="subitem" :message="Prison">
-            <template #title class="title">监狱建筑师</template>
-            <template #item class="item">
-              <router-link to="/Prison/intro" class="custom-link" style="margin-bottom: 5%" @click="hideMenu">游戏介绍</router-link>
-              <subitem class="subitem" :message="Tips">
-                <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
+    <transition name="menuFade">
+        <div id="menu" ref="menu" v-show="menuButtonFlag">
+          <ul>
+            <li style="box-shadow:2px 2px 2px #d4eaf7;border: 2px solid #71c4ef;width: 90%;padding: 5% 1%;border-radius: 6% 6%;">
+              <router-link id="lingchen" to="/LingChenJiaYou" class="custom-link" @click="hideMenu" style="font-size: 0.8em;color:#00668c;">向抗癌斗争中的联盟管理致敬</router-link>
+            </li>
+            <li>
+              <router-link to="/About" class="custom-link" @click="hideMenu">关于我们</router-link>
+            </li>
+            <li>
+              <router-link to="/Support" class="custom-link" @click="hideMenu">支持榜</router-link>
+            </li>
+
+            <li>
+              <subitem class="subitem" :message="Prison">
+                <template #title class="title">监狱建筑师</template>
                 <template #item class="item">
-                  <router-link to="/Prison/Tips/1" class="custom-link" @click="hideMenu">无供应问题</router-link>
-                  <router-link to="/Prison/Tips/WanHuZhiShou" class="custom-link" @click="hideMenu">玩忽职守</router-link>
-                  <router-link to="/Prison/Tips/PowerStation" class="custom-link" @click="hideMenu">发电机</router-link>
-                  <router-link to="/About" class="custom-link" @click="hideMenu">未封闭问题</router-link>
-                  <template v-for="(item, index) in articles">
-                    <router-link v-if="item.articleType === 'prisonTips'" :to="`/Articles/Prison/playerTips/${item.articleID}`" @click.prevent="hideMenu" class="custom-link">{{item.title}}</router-link>
-                  </template>
+                  <router-link to="/Prison/intro" class="custom-link" style="margin-bottom: 5%" @click="hideMenu">游戏介绍</router-link>
+                  <subitem class="subitem" :message="Tips">
+                    <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
+                    <template #item class="item">
+                      <router-link to="/Prison/Tips/1" class="custom-link" @click="hideMenu">无供应问题</router-link>
+                      <router-link to="/Prison/Tips/WanHuZhiShou" class="custom-link" @click="hideMenu">玩忽职守</router-link>
+                      <router-link to="/Prison/Tips/PowerStation" class="custom-link" @click="hideMenu">发电机</router-link>
+                      <router-link to="/About" class="custom-link" @click="hideMenu">未封闭问题</router-link>
+                      <template v-for="(item, index) in articles">
+                        <router-link v-if="item.articleType === 'prisonTips'" :to="`/Articles/Prison/playerTips/${item.articleID}`" @click.prevent="hideMenu" class="custom-link">{{item.title}}</router-link>
+                      </template>
+                    </template>
+                  </subitem>
+                  <subitem class='subitem' :message="prisonMods">
+                    <template #title class="title" style="font-size: 4.8vw">模组教程</template>
+                    <template #item class="item">
+                      <template v-for="(i, index) in articles">
+                        <router-link v-if="i.articleType === 'prisonMods'" :to="`/Articles/Prison/prisonMods/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                      </template>
+                    </template>
+                  </subitem>
                 </template>
               </subitem>
-              <subitem class='subitem' :message="prisonMods">
-                <template #title class="title" style="font-size: 4.8vw">模组教程</template>
+              <subitem class="subitem" :message="Ope">
+                <template #title class="title" style="font-size: 4.8vw">112接线员</template>
                 <template #item class="item">
-                  <template v-for="(i, index) in articles">
-                    <router-link v-if="i.articleType === 'prisonMods'" :to="`/Articles/Prison/prisonMods/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
-                  </template>
-                </template>
-              </subitem>
-            </template>
-          </subitem>
-          <subitem class="subitem" :message="Ope">
-            <template #title class="title" style="font-size: 4.8vw">112接线员</template>
-            <template #item class="item">
-              <subitem class='subitem' :message="OpeTips">
-                <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
-                <template #item class="item">
-                  <template v-for="(i, index) in articles">
-                    <router-link v-if="i.articleType === 'OperatorTips'" :to="`/Articles/Operator/OperatorTips/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
-                  </template>
+                  <subitem class='subitem' :message="OpeTips">
+                    <template #title class="title" style="font-size: 4.8vw">游戏攻略</template>
+                    <template #item class="item">
+                      <template v-for="(i, index) in articles">
+                        <router-link v-if="i.articleType === 'OperatorTips'" :to="`/Articles/Operator/OperatorTips/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                      </template>
+                    </template>
+                  </subitem>
+
+                  <subitem class='subitem' :message="OpeOthers">
+                    <template #title class="title" style="font-size: 4.8vw">模组教程</template>
+                    <template #item class="item">
+                      <template v-for="(i, index) in articles">
+                        <router-link v-if="i.articleType === 'OperatorMods'" :to="`/Articles/Operator/OperatorMods/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
+                      </template>
+                    </template>
+                  </subitem>
                 </template>
               </subitem>
 
-              <subitem class='subitem' :message="OpeOthers">
-                <template #title class="title" style="font-size: 4.8vw">其它攻略</template>
+              <subitem class="subitem" :message="Dev">
+                <template #title class="title" style="font-size: 4.8vw">开发文档</template>
                 <template #item class="item">
-                  <template v-for="(i, index) in articles">
-                    <router-link v-if="i.articleType === 'OperatorOthers'" :to="`/Articles/Operator/OperatorOthers/${i.articleID}`" @click.prevent="hideMenu" class="custom-link">{{i.title}}</router-link>
-                  </template>
+                  <router-link to="/Dev/editorTutorial" class="custom-link" @click="hideMenu">文档编辑器使用教程</router-link>
                 </template>
               </subitem>
-            </template>
-          </subitem>
-
-          <subitem class="subitem" :message="Dev">
-            <template #title class="title" style="font-size: 4.8vw">开发文档</template>
-            <template #item class="item">
-              <router-link to="/Dev/editorTutorial" class="custom-link" @click="hideMenu">文档编辑器使用教程</router-link>
-            </template>
-          </subitem>
-          <ul v-show="docflag===true">
+              <ul v-show="docflag===true">
+              </ul>
+            </li>
+            <li style="margin-left:0;background: linear-gradient(to top right, #d4eaf7, #b6ccd8);color: #00668c;font-size: 2.1vh;border-radius: 10%;padding: 5%">
+              本站已安全运行<br/>{{ hoursDiff }} 小时
+            </li>
           </ul>
-        </li>
-        <li style="margin-left:0;background: linear-gradient(to top right, #d4eaf7, #b6ccd8);color: #00668c;font-size: 2.1vh;border-radius: 10%;padding: 5%">
-          本站已安全运行<br/>{{ hoursDiff }} 小时 {{ minutesDiff }} 分钟 {{ secondsDiff }} 秒
-        </li>
-      </ul>
-    </div>
+        </div>
+    </transition>
+
     <div id="modal" v-show="menuButtonFlag" @click="hideMenu"></div>
   </div>
 </template>
@@ -125,7 +129,7 @@ import Prism from "prismjs";
 
 const articles = ref(null)
 const getAllArticles = ()=>{
-  axios.post(`${BACKHOST}:${BACKPORT}/api/getArticle`, {
+  axios.post(`${BACKHOST}:${FRONTPORT}/api/getArticle`, {
     articleType:"all"
   })
       .then(res=>{
@@ -147,8 +151,6 @@ const calculateTimeDifference = () => {
   const timeDifference = Math.abs(currentTime - specificTime);
 
   hoursDiff.value = Math.floor(timeDifference / (1000 * 60 * 60));
-  minutesDiff.value = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-  secondsDiff.value = Math.floor((timeDifference % (1000 * 60)) / 1000);
 };
 
 // 使用 watchEffect 实时计算时间差
@@ -162,16 +164,9 @@ watchEffect(() => {
   // 在组件销毁时清除定时器
   return () => clearInterval(interval);
 });
-const menuButtonOnclick = (e)=>{
-  if(menuButtonFlag.value === false){
-    menu.value.style.left = 0
-    icon.value = "iconfont icon-shanchu"
-    menuButtonFlag.value = true
-  }else{
-    menu.value.style.left = "-80vw"
-    icon.value = "iconfont icon-bars"
-    menuButtonFlag.value = false
-  }
+const menuButtonOnclick = ()=>{
+  menuButtonFlag.value = !menuButtonFlag.value
+  icon.value==="iconfont icon-shanchu"?icon.value = "iconfont icon-bars":icon.value = "iconfont icon-shanchu"
   isdd.value = !isdd.value
 }
 
@@ -187,6 +182,7 @@ const itemOnclick = (name)=>{
 </script>
 
 <style scoped>
+
 @keyframes flag {
   from {
     opacity: 0;
@@ -195,7 +191,16 @@ const itemOnclick = (name)=>{
     opacity: 1;
   }
 }
+.menuFade-enter-active,
+.menuFade-leave-active {
+  transition: opacity 0.5s ease,transform 0.5s ease;
+}
 
+.menuFade-enter-from,
+.menuFade-leave-to {
+  opacity: 0;
+  transform: translateX(-100vw);
+}
 /* 手机（小屏幕） */
 @media (max-width: 769px) {
   /* 样式 */
@@ -219,14 +224,13 @@ const itemOnclick = (name)=>{
     height: 100vh;
     overflow: scroll;
     color: #313d44;
-    top: 7vh;
+    top: 0;
     width: 70vw;
     border-radius: 2% 2%;
     background-color: rgba(245, 244, 241, 0.95);
     position: fixed;
     z-index: 1;
-    left: -80vw;
-    transition: left cubic-bezier(.27,1.13,1,1) 0.5s;
+    margin-top:7vh;
   }
   #menu ul li{
     font-size: 6vw;
@@ -313,7 +317,7 @@ const itemOnclick = (name)=>{
     background-color: rgba(245, 244, 241, 0.95);
     position: fixed;
     z-index: 1;
-    left: -80vw;
+    left: 0vw;
     transition: left cubic-bezier(.27,1.13,1,1) 0.5s;
   }
   #menu ul li{
